@@ -1,4 +1,3 @@
-import { Keyboard } from 'telegram-keyboard'
 import { SceneGenerator } from './scenes';
 import { TOKEN } from './utils/env';
 import { showFeed } from './Feed';
@@ -8,6 +7,7 @@ import { resloveWebSocketConnection } from './webSocket';
 import { showProfile, switchAccount, signOut } from './Profile';
 import { showSettings, manageSettings } from './Settings';
 import { log } from './utils';
+import { Markup } from 'telegraf';
 
 const Telegraf = require('telegraf')
 const {
@@ -26,10 +26,10 @@ bot.catch((err, ctx) => {
 let notifOffset = 0
 let feedOffset = 0
 
-export const mainMenuKeyboard = Keyboard.make([
+export const mainMenuKeyboard = Markup.keyboard([
   ['📰 Feed', '🔔 Notifications'],
   ['👤 Account', '⚙️ Settings']
-]).reply()
+])
 
 const scenesGen = new SceneGenerator()
 const getBalance = scenesGen.getAccountScene()

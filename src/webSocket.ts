@@ -33,7 +33,7 @@ socket.onopen = () => {
 socket.onclose = () => {
 };
 socket.onmessage = async (msg: IMessageEvent) => {
-	const { activity, chatId, type } = JSON.parse(msg.data) as OffchainMessage
+	const { activity, chatId, type } = JSON.parse(msg.data.toString()) as OffchainMessage
 	const account = await getAccountByChatId(chatId)
 	if (!account) return
 

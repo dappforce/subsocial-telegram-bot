@@ -45,7 +45,6 @@
     "cors": "^2.8.5",
     "dotenv": "^8.0.0",
     "telegraf": "3.38.0",
-    "telegram-keyboard": "^2.1.7",
     "websocket": "^1.0.33"
   }
 }

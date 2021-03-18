@@ -121,7 +121,7 @@ export const showNotification = async (ctx: TelegrafContext, notifOffset: number
 		notifOffset += 5
 	  } else {
 		notifOffset = 0
-		ctx.reply("No more notifications🤷‍♂️", mainMenuKeyboard)
+		ctx.reply("No more notifications🤷‍♂️", {reply_markup: mainMenuKeyboard})
 	  }
 	}
 	return notifOffset
