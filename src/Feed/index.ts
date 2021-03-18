@@ -45,17 +45,17 @@ export const showFeed = async (ctx: TelegrafContext, feedOffset: number) => {
 			for (let i = 0; i < feeds.length; i++) {
 				const feed = feeds[i]
 				if (i == feeds.length - 1)
-					await ctx.telegram.sendMessage(ctx.chat.id, await getPostPreview(feed), {
+					await ctx.reply(await getPostPreview(feed), {
 						parse_mode: 'HTML',
 						reply_markup: loadMoreFeed
 					})
 				else
-					await ctx.telegram.sendMessage(ctx.chat.id, await getPostPreview(feed), { parse_mode: 'HTML' })
+					await ctx.reply(await getPostPreview(feed), { parse_mode: 'HTML' })
 			}
 			feedOffset += 5
 		} else {
 			feedOffset = 0
-			ctx.reply("No more feed🤷‍♂️", {reply_markup: mainMenuKeyboard})
+			ctx.reply("No more feed🤷‍♂️", { reply_markup: mainMenuKeyboard })
 		}
 	}
 	return feedOffset

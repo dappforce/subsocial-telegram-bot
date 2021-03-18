@@ -9,13 +9,13 @@ import { appsUrl } from '../utils/env';
 const profileButton = (account: string) => Markup.inlineKeyboard([
 	[
 		Markup.urlButton('View on site', `${appsUrl}/accounts/${account}`),
-		Markup.urlButton('Edit profile', `${appsUrl}/accounts/edit`)
+		Markup.urlButton('Edit profile', `${appsUrl}/accounts/edit`),
 	],
 	[
 		Markup.callbackButton('Switch account', 'switchAccount'),
 		Markup.callbackButton('Sign out', 'signOut')
 	]
-])
+]).resize()
 
 const signIn = Markup.keyboard([
 	Markup.callbackButton('Sign in', 'signIn')
@@ -43,7 +43,7 @@ export const showProfile = async (ctx: TelegrafContext) => {
 		following_accounts_count,
 		followers_count
 	)
-	ctx.telegram.sendMessage(ctx.chat.id, message, { parse_mode: 'HTML', reply_markup: profileButton(account) })
+	await ctx.reply(message, { parse_mode: 'HTML', reply_markup: profileButton(account) })
 }
 
 export const switchAccount = async (ctx) => {
@@ -54,5 +54,5 @@ export const switchAccount = async (ctx) => {
 export const signOut = async (ctx) => {
 	const chatId = ctx.chat.id
 	await changeCurrentAccount('', chatId)
-	await ctx.telegram.sendMessage(chatId, 'You are sign out', { reply_markup: signIn})
+	await ctx.reply('You are sign out', { reply_markup: signIn })
 }

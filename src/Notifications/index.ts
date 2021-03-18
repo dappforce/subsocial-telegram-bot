@@ -107,13 +107,13 @@ export const showNotification = async (ctx: TelegrafContext, notifOffset: number
 		  const notification = notifsMessage[i]
 
 		  if (i == notifsMessage.length - 1)
-			await ctx.telegram.sendMessage(ctx.chat.id, notification, {
+			await ctx.reply( notification, {
 			  parse_mode: 'HTML',
 			  disable_web_page_preview: true,
 			  reply_markup: loadMoreNotif
 			})
 		  else
-			await ctx.telegram.sendMessage(ctx.chat.id, notification, {
+			await ctx.reply( notification, {
 			  parse_mode: 'HTML',
 			  disable_web_page_preview: true
 			})

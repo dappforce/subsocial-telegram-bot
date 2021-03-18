@@ -50,7 +50,7 @@ export const getNotifications = async (myAddress: string, offset: number, limit:
 
 export const setTelegramData = async (account: string, chatId: number) => {
   try {
-    const res = await axios.post(getOffchainUrl(`/telegram//setTelegramData`), { account, chatId })
+    const res = await axios.post(getOffchainUrl(`/telegram/setTelegramData`), { account, chatId })
     if (res.status !== 200) {
       console.warn('Failed to insert telegram data for account:', account, 'res.status:', res.status)
     }

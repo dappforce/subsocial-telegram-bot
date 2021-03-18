@@ -20,7 +20,7 @@ export class SceneGenerator {
 				await setTelegramData(addressEncoded, chatId)
 				await changeCurrentAccount(addressEncoded, chatId)
 
-				await ctx.reply(`Thank you account confirmed`, mainMenuKeyboard)
+				await ctx.reply(`Thank you account confirmed`, {reply_markup: mainMenuKeyboard})
 
 				ctx.chat.first_name = message
 				await ctx.scene.leave()

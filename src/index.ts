@@ -29,7 +29,7 @@ let feedOffset = 0
 export const mainMenuKeyboard = Markup.keyboard([
   ['📰 Feed', '🔔 Notifications'],
   ['👤 Account', '⚙️ Settings']
-])
+]).resize()
 
 const scenesGen = new SceneGenerator()
 const getBalance = scenesGen.getAccountScene()
@@ -40,7 +40,7 @@ bot.use(session())
 bot.use(stage.middleware())
 
 bot.start(async (ctx) => {
-  await ctx.telegram.sendMessage(ctx.chat.id, 'Hi in Subsocial telegram bot👋')
+  await ctx.reply( 'Hi in Subsocial telegram bot👋')
 
   await ctx.scene.enter('address')
 })
