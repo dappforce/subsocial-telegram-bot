@@ -1,8 +1,8 @@
-import { mainMenuKeyboard } from './index';
 import { setTelegramData, changeCurrentAccount } from './utils/offchainUtils';
 import { encodeAddress } from '@polkadot/util-crypto';
 import { GenericAccountId } from '@polkadot/types';
 import registry from '@subsocial/types/substrate/registry'
+import { mainMenuKeyboard } from './utils/index';
 const Scene = require('telegraf/scenes/base')
 
 export class SceneGenerator {
@@ -17,6 +17,7 @@ export class SceneGenerator {
 			try {
 				const addressDecoded = new GenericAccountId(registry, message).toHex()
 				const addressEncoded = encodeAddress(addressDecoded, 28).toString()
+				
 				await setTelegramData(addressEncoded, chatId)
 				await changeCurrentAccount(addressEncoded, chatId)
 

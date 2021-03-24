@@ -2,10 +2,16 @@ import { appsUrl } from './env'
 import { resolveSubsocialApi } from '../Substrate/subsocialConnect';
 import { SpaceId } from '@subsocial/types/substrate/interfaces';
 import { newLogger } from '@subsocial/utils';
+import { Markup } from 'telegraf';
 
 export const log = newLogger("Telegram")
 
 export type Type = 'notification' | 'feed'
+
+export const mainMenuKeyboard = Markup.keyboard([
+  ['📰 Feed', '🔔 Notifications'],
+  ['👤 Account', '⚙️ Settings']
+]).resize()
 
 export const createHrefForPost = (spaceId: string, postId: string, name: string) => {
 	return `<a href="${appsUrl}/${spaceId}/${postId}">${name}</a>`
@@ -35,13 +41,14 @@ export const createMessageForProfile = (
 	followings: number,
 	followers: number
 ) => {
-	return "<b>👤 Account</b>"
-		+ "\n\n🙂 Name: " + accountName
-		+ "\n🔑 Address: " + address
-		+ "\n💰 Balance: " + balance
-		+ "\n📈 Reputation: " + reputation
-		+ "\n⬆️ My followings: " + followings
-		+ "\n⬇️ My followers: " + followers
+	return `<b>👤 Account</b>
+
+	🙂 Name: ${accountName}
+	🔑 Address: ${address}
+	💰 Balance: ${balance}
+	📈 Reputation: ${reputation}
+	⬆️ My followings: ${followings}
+	⬇️ My followers: ${followers}`
 }
 
 export const getAccountName = async (account: string): Promise<string> => {

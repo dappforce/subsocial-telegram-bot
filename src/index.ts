@@ -1,13 +1,12 @@
 import { SceneGenerator } from './scenes';
 import { TOKEN } from './utils/env';
-import { showFeed } from './Feed';
+import { showFeed } from './feed';
 import { TelegrafContext } from 'telegraf/typings/context';
-import { showNotification } from './Notifications';
+import { showNotification } from './notifications';
 import { resloveWebSocketConnection } from './webSocket';
-import { showProfile, switchAccount, signOut } from './Profile';
-import { showSettings, manageSettings } from './Settings';
+import { showProfile, switchAccount, signOut } from './profile';
+import { showSettings, manageSettings } from './settings';
 import { log } from './utils';
-import { Markup } from 'telegraf';
 
 const Telegraf = require('telegraf')
 const {
@@ -21,15 +20,8 @@ bot.catch((err, ctx) => {
   log.error(`Ooops, encountered an error for ${ctx.updateType}`, err)
 })
 
-// bot.use(Telegraf.log())
-
 let notifOffset = 0
 let feedOffset = 0
-
-export const mainMenuKeyboard = Markup.keyboard([
-  ['📰 Feed', '🔔 Notifications'],
-  ['👤 Account', '⚙️ Settings']
-]).resize()
 
 const scenesGen = new SceneGenerator()
 const getBalance = scenesGen.getAccountScene()
@@ -40,7 +32,7 @@ bot.use(session())
 bot.use(stage.middleware())
 
 bot.start(async (ctx) => {
-  await ctx.reply( 'Hi in Subsocial telegram bot👋')
+  await ctx.reply('Hi in Subsocial telegram bot👋')
 
   await ctx.scene.enter('address')
 })
