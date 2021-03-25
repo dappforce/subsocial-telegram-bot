@@ -8,7 +8,7 @@ import { TelegrafContext } from 'telegraf/typings/context';
 import dayjs from 'dayjs';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
 import BN from 'bn.js';
-import { nonEmptyStr } from '@subsocial/utils';
+import { nonEmptyStr, summarizeMd } from '@subsocial/utils';
 import { mainMenuKeyboard } from '../utils/index';
 dayjs.extend(LocalizedFormat)
 
@@ -110,7 +110,9 @@ const getCommentPreview = ({ account, comment_id, msg, date, activityStore }: Co
 	const post = postById.get(comment_id)
 	const postId = post.post.struct.id
 	const spaceId = post.space.struct.id
-	const content = post.ext.post.content.body
+
+	const title = post.ext.post.content.title
+	const content = title ? title : summarizeMd(post.ext.post.content.body).summary
 
 	const owner = ownerById.get(account)
 	const accountName = owner?.content?.name ? owner.content.name : account
@@ -126,7 +128,9 @@ const getPostPreview = ({ account, post_id, msg, date, activityStore }: PostPrev
 
 	const post = postById.get(post_id)
 	const spaceId = post.post.struct.space_id
-	const content = post.post.content.body
+
+	const title = post.post.content.title
+	const content = title ? title : summarizeMd(post.post.content.body).summary
 
 	const owner = ownerById.get(account)
 	const accountName = owner?.content?.name ? owner.content.name : account
