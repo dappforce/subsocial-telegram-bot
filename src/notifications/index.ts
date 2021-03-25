@@ -18,6 +18,29 @@ export type ActivityStore = {
 	ownerById: Map<string, ProfileData>
 }
 
+type PreviewCommon = {
+	account: string
+	msg: string
+	date: string
+	activityStore: ActivityStore
+}
+
+type AccountPreview = PreviewCommon & {
+	following_id: string
+}
+
+type SpacePreview = PreviewCommon & {
+	space_id: string
+}
+
+type PostPreview = PreviewCommon & {
+	post_id: string
+}
+
+type CommentPreview = PreviewCommon & {
+	comment_id: string
+}
+
 const loadMoreNotif = Markup.inlineKeyboard([
 	Markup.callbackButton('🔔 Load more', 'loadMoreNotifs')
 ])
@@ -37,21 +60,21 @@ const getActivityPreview = (activity: Activity, msg: string, activityStore: Acti
 	const eventName = event as EventsName
 
 	switch (eventName) {
-		case 'AccountFollowed': return getAccountPreview(account, following_id, msg, date, activityStore)
-		case 'SpaceFollowed': return getSpacePreview(account, space_id, msg, date, activityStore)
-		case 'SpaceCreated': return getSpacePreview(account, space_id, msg, date, activityStore)
-		case 'CommentCreated': return getCommentPreview(account, comment_id, msg, date, activityStore)
-		case 'CommentReplyCreated': return getCommentPreview(account, comment_id, msg, date, activityStore)
-		case 'PostShared': return getPostPreview(account, post_id, msg, date, activityStore)
-		case 'CommentShared': return getCommentPreview(account, comment_id, msg, date, activityStore)
-		case 'PostReactionCreated': return getPostPreview(account, post_id, msg, date, activityStore)
-		case 'CommentReactionCreated': return getCommentPreview(account, comment_id, msg, date, activityStore)
-		case 'PostCreated': return getPostPreview(account, post_id, msg, date, activityStore)
+		case 'AccountFollowed': return getAccountPreview({ account, following_id, msg, date, activityStore })
+		case 'SpaceFollowed': return getSpacePreview({ account, space_id, msg, date, activityStore })
+		case 'SpaceCreated': return getSpacePreview({ account, space_id, msg, date, activityStore })
+		case 'CommentCreated': return getCommentPreview({ account, comment_id, msg, date, activityStore })
+		case 'CommentReplyCreated': return getCommentPreview({ account, comment_id, msg, date, activityStore })
+		case 'PostShared': return getPostPreview({ account, post_id, msg, date, activityStore })
+		case 'CommentShared': return getCommentPreview({ account, comment_id, msg, date, activityStore })
+		case 'PostReactionCreated': return getPostPreview({ account, post_id, msg, date, activityStore })
+		case 'CommentReactionCreated': return getCommentPreview({ account, comment_id, msg, date, activityStore })
+		case 'PostCreated': return getPostPreview({ account, post_id, msg, date, activityStore })
 		default: return undefined
 	}
 }
 
-const getAccountPreview = (account: string, following_id: string, msg: string, date: string, activityStore: ActivityStore): string => {
+const getAccountPreview = ({ account, following_id, msg, date, activityStore }: AccountPreview): string => {
 	const { ownerById } = activityStore
 	const formatDate = dayjs(date).format('lll')
 
@@ -66,28 +89,28 @@ const getAccountPreview = (account: string, following_id: string, msg: string, d
 	return createMessageForNotifs(formatDate, accountUrl, msg, followingUrl)
 }
 
-const getSpacePreview = (account: string, spaceId: string, msg: string, date: string, activityStore: ActivityStore): string => {
+const getSpacePreview = ({ account, space_id, msg, date, activityStore }: SpacePreview): string => {
 	const { spaceById, ownerById } = activityStore
 	const formatDate = dayjs(date).format('lll')
-	const space = spaceById.get(spaceId)
+	const space = spaceById.get(space_id)
 	const content = space.content.name
 
 	const owner = ownerById.get(account)
 	const accountName = owner?.content?.name ? owner.content.name : account
 
-	const url = createHrefForSpace(spaceId.toString(), content)
+	const url = createHrefForSpace(space_id.toString(), content)
 
 	return createMessageForNotifs(formatDate, createHrefForAccount(account, accountName), msg, url)
 }
 
-const getCommentPreview = (account: string, comment_id: string, msg: string, date: string, activityStore: ActivityStore): string => {
+const getCommentPreview = ({ account, comment_id, msg, date, activityStore }: CommentPreview): string => {
 	const { postById, ownerById } = activityStore
 	const formatDate = dayjs(date).format('lll')
 
-	const postDetails = postById.get(comment_id)
-	const postId = postDetails.post.struct.id
-	const spaceId = postDetails.space.struct.id
-	const content = postDetails.ext.post.content.body
+	const post = postById.get(comment_id)
+	const postId = post.post.struct.id
+	const spaceId = post.space.struct.id
+	const content = post.ext.post.content.body
 
 	const owner = ownerById.get(account)
 	const accountName = owner?.content?.name ? owner.content.name : account
@@ -97,18 +120,18 @@ const getCommentPreview = (account: string, comment_id: string, msg: string, dat
 	return createMessageForNotifs(formatDate, createHrefForAccount(account, accountName), msg, url)
 }
 
-const getPostPreview = (account: string, postId: string, msg: string, date: string, activityStore: ActivityStore): string => {
+const getPostPreview = ({ account, post_id, msg, date, activityStore }: PostPreview): string => {
 	const { postById, ownerById } = activityStore
 	const formatDate = dayjs(date).format('lll')
 
-	const post = postById.get(postId)
+	const post = postById.get(post_id)
 	const spaceId = post.post.struct.space_id
 	const content = post.post.content.body
 
 	const owner = ownerById.get(account)
 	const accountName = owner?.content?.name ? owner.content.name : account
 
-	const url = createHrefForPost(spaceId.toString(), postId.toString(), content)
+	const url = createHrefForPost(spaceId.toString(), post_id.toString(), content)
 
 	return createMessageForNotifs(formatDate, createHrefForAccount(account, accountName), msg, url)
 }
