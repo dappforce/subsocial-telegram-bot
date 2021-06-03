@@ -385,7 +385,7 @@
     "@polkadot/x-rxjs" "^5.9.2"
     bn.js "^4.11.9"
 
-"@polkadot/api@3.11.1", "@polkadot/api@^3.10.2", "@polkadot/api@^3.8.1":
+"@polkadot/api@3.11.1", "@polkadot/api@^3.8.1", "@polkadot/api@~3.11.1":
   version "3.11.1"
   resolved "https://registry.yarnpkg.com/@polkadot/api/-/api-3.11.1.tgz#854ee9686942a4be736932d61bf7ddb1242a0966"
   integrity sha512-VqEh2n13ESLxnTUKujUfZ3Spct+lTycNgrX+IWD7/f05GsMwhCZLYtt708K8nqGFH2OKDl8xzwuGCvRN/05U1Q==
@@ -470,7 +470,7 @@
     "@polkadot/util" "^5.9.2"
     bn.js "^4.11.9"
 
-"@polkadot/types@3.11.1", "@polkadot/types@^3.8.1":
+"@polkadot/types@3.11.1", "@polkadot/types@^3.8.1", "@polkadot/types@~3.11.1":
   version "3.11.1"
   resolved "https://registry.yarnpkg.com/@polkadot/types/-/types-3.11.1.tgz#c0188390dfda84d746d57f7818ad622ac6b1de8b"
   integrity sha512-+BWsmveYVkLFx/csvPmU+NhNFhf+0srAt2d0f+7y663nitc/sng1AcEDPbrbXHSQVyPdvI20Mh4Escl4aR+TLw==
@@ -618,27 +618,38 @@
     escape-string-regexp "^2.0.0"
     lodash.deburr "^4.1.0"
 
-"@subsocial/api@^0.4.33":
-  version "0.4.34"
-  resolved "https://registry.yarnpkg.com/@subsocial/api/-/api-0.4.34.tgz#f65febb6023061808b1644b19978d0331dfac23d"
-  integrity sha512-TLwwlRYhXPZWNykCkrV+TVP2josZAlOUjmbEY5vUmVLrZDXIDhnMUS6r3KbggdZML4qFM6UgqO1sQDSE3gF78Q==
+"@subsocial/api@^0.5.2":
+  version "0.5.3"
+  resolved "https://registry.yarnpkg.com/@subsocial/api/-/api-0.5.3.tgz#acb851be9eb19e8aa5da44f98cd284422f8b4fc8"
+  integrity sha512-1D0ANa6kFyvWEZFNzP7WOGn60YZDrfcU+2sKuHFRUTpqptabBp8GzfSuy9VR6g6WU8pAq0Pie1DN8W4KPHlWtw==
   dependencies:
-    "@polkadot/api" "^3.10.2"
-    "@subsocial/utils" "^0.4.33"
+    "@polkadot/api" "~3.11.1"
+    "@subsocial/types" "0.5.1-sub-2.0.1"
+    "@subsocial/utils" "^0.4.39"
     axios "^0.21.1"
 
-"@subsocial/types@^0.4.33":
-  version "0.4.35"
-  resolved "https://registry.yarnpkg.com/@subsocial/types/-/types-0.4.35.tgz#85cb2b2549b98a59a4655ce2315e7012a5c75f94"
-  integrity sha512-c2cAWFowknZG58U71jJkSfpYyDcLmVicM8k1O+DOsIRvlKLE7YYyYbWcnqVKQ0JTAGH4E/ojlY/w+6cVUUKy2Q==
+"@subsocial/types@0.5.1-sub-2.0.1":
+  version "0.5.1-sub-2.0.1"
+  resolved "https://registry.yarnpkg.com/@subsocial/types/-/types-0.5.1-sub-2.0.1.tgz#a32fc2c2e5eb94cdde867cd78a94070803fb3aed"
+  integrity sha512-cw8wcp7tQfhLYICSpQFiFZyVi4KcLtQLG8mektPJ+MyqY+TazpffZPgNNtixbOvxESVBfepMvoYN2lNPa4VCLg==
   dependencies:
-    "@subsocial/utils" "^0.4.33"
+    "@polkadot/types" "~3.11.1"
+    "@subsocial/utils" "^0.4.39"
     cids "^0.7.1"
 
-"@subsocial/utils@^0.4.33", "@subsocial/utils@^0.4.38":
-  version "0.4.38"
-  resolved "https://registry.yarnpkg.com/@subsocial/utils/-/utils-0.4.38.tgz#d077304661a62440a2bb2f166a66756e91907814"
-  integrity sha512-721Ggt/jSce6aPo3VP0U8XtwDeZOjh4o0z6i2cL9CaJN26gsGhxVOvlS1gKevIhU45Ffvgl3vjqI/D4I54X5Tg==
+"@subsocial/types@^0.5.2":
+  version "0.5.3"
+  resolved "https://registry.yarnpkg.com/@subsocial/types/-/types-0.5.3.tgz#4e16c3fd8c785eb80e0738ac8acac5895e9aef68"
+  integrity sha512-s9ZZgG4z1fAELk6HE/7TYfpNyaYsmit9nHZAH4N1MHB7Yo1HZjKk1K9ZZ6tIb5WeiesBbJiE3ME1ynAWw4o6tQ==
+  dependencies:
+    "@polkadot/types" "~3.11.1"
+    "@subsocial/utils" "^0.4.39"
+    cids "^0.7.1"
+
+"@subsocial/utils@^0.4.39":
+  version "0.4.39"
+  resolved "https://registry.yarnpkg.com/@subsocial/utils/-/utils-0.4.39.tgz#0b069a0e55950ffef6ceb002aea1cdec96d5f133"
+  integrity sha512-pvD5f5r0W8dGVNCmEO2LV4vWY3dvThgABMvzHmtIAXHAo7aixyz5vSc+t0x8kDRVEEAYL09URaL32bVKnAyaxw==
   dependencies:
     "@sindresorhus/slugify" "^1.1.0"
     bn.js "^5.1.1"

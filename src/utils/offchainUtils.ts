@@ -52,10 +52,10 @@ export const setTelegramData = async (account: string, chatId: number) => {
   try {
     const res = await axios.post(getOffchainUrl(`/telegram/setTelegramData`), { account, chatId })
     if (res.status !== 200) {
-      console.warn('Failed to insert telegram data for account:', account, 'res.status:', res.status)
+      log.warn('Failed to insert telegram data for account:', account, 'res.status:', res.status)
     }
   } catch (err) {
-    console.error(`Failed to insert telegram data for account: ${account}`, err)
+    log.error(`Failed to insert telegram data for account: ${account}`, err)
   }
 }
 
@@ -66,7 +66,7 @@ export const changeCurrentAccount = async (account: string, chatId: number) => {
       return res.data
     }
   } catch (err) {
-    console.error(`Failed to chenge current account for chat id: ${chatId}`, err)
+    log.error(`Failed to chenge current account for chat id: ${chatId}`, err)
   }
 }
 
@@ -77,7 +77,7 @@ export const updateLastPush = async (account: string, chatId: number, blockNumbe
       return res.data
     }
   } catch (err) {
-    console.error(`Failed to update last push for chat id: ${chatId}`, err)
+    log.error(`Failed to update last push for chat id: ${chatId}`, err)
   }
 }
 
@@ -88,7 +88,7 @@ export const getAccountByChatId = async (chatId: number) => {
       return res.data
     }
   } catch (err) {
-    console.error(`Failed to get account for chat id: ${chatId}`, err)
+    log.error(`Failed to get account for chat id: ${chatId}`, err)
   }
 }
 
@@ -99,7 +99,7 @@ export const getTelegramChat = async (account: string, chatId: number) => {
       return res.data
     }
   } catch (err) {
-    console.error(`Failed to get data for telegram for chat id: ${chatId}`, err)
+    log.error(`Failed to get data for telegram for chat id: ${chatId}`, err)
   }
 }
 
@@ -110,6 +110,6 @@ export const updateTelegramChat = async (account: string, chatId: number, push_n
       return res.data
     }
   } catch (err) {
-    console.error(`Failed to get data for telegram for chat id: ${chatId}`, err)
+    log.error(`Failed to get data for telegram for chat id: ${chatId}`, err)
   }
 }

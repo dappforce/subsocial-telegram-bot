@@ -1,16 +1,13 @@
-import { EventsName, Activity, PostWithAllDetails, SpaceData, ProfileData } from '@subsocial/types';
-import { getAccountByChatId, getNotifications } from '../utils/offchainUtils';
-import message from './message';
-import { resolveSubsocialApi } from '../Substrate/subsocialConnect';
-import { createHrefForAccount, createMessageForNotifs, createHrefForSpace, createHrefForPost } from '../utils';
-import { Markup } from 'telegraf';
-import { TelegrafContext } from 'telegraf/typings/context';
-import dayjs from 'dayjs';
-import LocalizedFormat from 'dayjs/plugin/localizedFormat'
-import BN from 'bn.js';
-import { nonEmptyStr, summarizeMd } from '@subsocial/utils';
-import { mainMenuKeyboard } from '../utils/index';
-dayjs.extend(LocalizedFormat)
+import { EventsName, Activity, PostWithAllDetails, SpaceData, ProfileData } from '@subsocial/types'
+import { getAccountByChatId, getNotifications } from '../utils/offchainUtils'
+import message from './message'
+import { resolveSubsocialApi } from '../Substrate/subsocialConnect'
+import { createHrefForAccount, createMessageForNotifs, createHrefForSpace, createHrefForPost } from '../utils'
+import { TelegrafContext } from 'telegraf/typings/context'
+import BN from 'bn.js'
+import { nonEmptyStr, summarizeMd } from '@subsocial/utils'
+import { getFormatDate, toShortAddress } from '../utils/index'
+import { loadMoreNotif, mainMenuKeyboard } from '../utils/keyboard'
 
 export type ActivityStore = {
 	spaceById: Map<string, SpaceData>,
@@ -23,6 +20,8 @@ type PreviewCommon = {
 	msg: string
 	date: string
 	activityStore: ActivityStore
+	aggregated: boolean
+	aggCount: number
 }
 
 type AccountPreview = PreviewCommon & {
@@ -41,103 +40,118 @@ type CommentPreview = PreviewCommon & {
 	comment_id: string
 }
 
-const loadMoreNotif = Markup.inlineKeyboard([
-	Markup.callbackButton('🔔 Load more', 'loadMoreNotifs')
-])
-
 export const createNotificationsMessage = (activities: Activity[], activityStore: ActivityStore) => {
 	let res: string[] = []
-	for (let index = 0; index < activities.length; index++) {
-		const activity = activities[index];
+
+	for( const activity of activities) {
 		const str = message.notifications[activity.event as EventsName]
 		res.push(getActivityPreview(activity, str, activityStore))
 	}
+
 	return res
 }
 
 const getActivityPreview = (activity: Activity, msg: string, activityStore: ActivityStore): string => {
-	const { account, event, space_id, post_id, comment_id, following_id, date } = activity
+	const { account, event, space_id, post_id, comment_id, following_id, date, aggregated, agg_count: aggCount } = activity
 	const eventName = event as EventsName
 
 	switch (eventName) {
-		case 'AccountFollowed': return getAccountPreview({ account, following_id, msg, date, activityStore })
-		case 'SpaceFollowed': return getSpacePreview({ account, space_id, msg, date, activityStore })
-		case 'SpaceCreated': return getSpacePreview({ account, space_id, msg, date, activityStore })
-		case 'CommentCreated': return getCommentPreview({ account, comment_id, msg, date, activityStore })
-		case 'CommentReplyCreated': return getCommentPreview({ account, comment_id, msg, date, activityStore })
-		case 'PostShared': return getPostPreview({ account, post_id, msg, date, activityStore })
-		case 'CommentShared': return getCommentPreview({ account, comment_id, msg, date, activityStore })
-		case 'PostReactionCreated': return getPostPreview({ account, post_id, msg, date, activityStore })
-		case 'CommentReactionCreated': return getCommentPreview({ account, comment_id, msg, date, activityStore })
-		case 'PostCreated': return getPostPreview({ account, post_id, msg, date, activityStore })
+		case 'AccountFollowed': return getAccountPreview({ account, following_id, msg, date, activityStore,	aggregated, aggCount })
+		case 'SpaceFollowed': return getSpacePreview({ account, space_id, msg, date, activityStore,	aggregated, aggCount })
+		case 'SpaceCreated': return getSpacePreview({ account, space_id, msg, date, activityStore,	aggregated, aggCount })
+		case 'CommentCreated': return getCommentPreview({ account, comment_id, msg, date, activityStore,	aggregated, aggCount })
+		case 'CommentReplyCreated': return getCommentPreview({ account, comment_id, msg, date, activityStore,	aggregated, aggCount })
+		case 'PostShared': return getPostPreview({ account, post_id, msg, date, activityStore,	aggregated, aggCount })
+		case 'CommentShared': return getCommentPreview({ account, comment_id, msg, date, activityStore,	aggregated, aggCount })
+		case 'PostReactionCreated': return getPostPreview({ account, post_id, msg, date, activityStore,	aggregated, aggCount })
+		case 'CommentReactionCreated': return getCommentPreview({ account, comment_id, msg, date, activityStore,	aggregated, aggCount })
+		case 'PostCreated': return getPostPreview({ account, post_id, msg, date, activityStore,	aggregated, aggCount })
 		default: return undefined
 	}
 }
 
-const getAccountPreview = ({ account, following_id, msg, date, activityStore }: AccountPreview): string => {
+const getAccountPreview = ({ account, following_id, msg, date, activityStore, aggregated, aggCount }: AccountPreview): string => {
 	const { ownerById } = activityStore
-	const formatDate = dayjs(date).format('lll')
 
 	const follower = ownerById.get(account)
 	const followingAccount = ownerById.get(following_id)
 
-	const accountName = follower?.content?.name ? follower.content.name : account
-	const followingName = followingAccount?.content?.name ? followingAccount.content.name : following_id
+	const accountName = follower?.content?.name ? follower.content.name : toShortAddress(account)
+	const followingName = followingAccount?.content?.name ? followingAccount.content.name : toShortAddress(following_id)
 
 	const followingUrl = createHrefForAccount(following_id, followingName)
 	const accountUrl = createHrefForAccount(account, accountName)
-	return createMessageForNotifs(formatDate, accountUrl, msg, followingUrl)
+	return createMessageForNotifs({date: getFormatDate(date), account: accountUrl, msg, link: followingUrl, aggregated, aggCount})
 }
 
-const getSpacePreview = ({ account, space_id, msg, date, activityStore }: SpacePreview): string => {
+const getSpacePreview = ({ account, space_id, msg, date, activityStore, aggregated, aggCount }: SpacePreview): string => {
 	const { spaceById, ownerById } = activityStore
-	const formatDate = dayjs(date).format('lll')
+
 	const space = spaceById.get(space_id)
 	const content = space.content.name
 
 	const owner = ownerById.get(account)
-	const accountName = owner?.content?.name ? owner.content.name : account
+	const accountName = owner?.content?.name ? owner.content.name : toShortAddress(account)
 
 	const url = createHrefForSpace(space_id.toString(), content)
 
-	return createMessageForNotifs(formatDate, createHrefForAccount(account, accountName), msg, url)
+	return createMessageForNotifs({
+		date: getFormatDate(date),
+		account: createHrefForAccount(account, accountName),
+		msg,
+		link: url,
+		aggregated,
+		aggCount
+	})
 }
 
-const getCommentPreview = ({ account, comment_id, msg, date, activityStore }: CommentPreview): string => {
+const getCommentPreview = ({ account, comment_id, msg, date, activityStore, aggregated, aggCount }: CommentPreview): string => {
 	const { postById, ownerById } = activityStore
-	const formatDate = dayjs(date).format('lll')
 
 	const post = postById.get(comment_id)
 	const postId = post.post.struct.id
 	const spaceId = post.space.struct.id
 
-	const title = post.ext.post.content.title
-	const content = title ? title : summarizeMd(post.ext.post.content.body).summary
+	const { title, body } = post.ext.post.content
+	const content = title || summarizeMd(body).summary
 
 	const owner = ownerById.get(account)
-	const accountName = owner?.content?.name ? owner.content.name : account
+	const accountName = owner?.content?.name ? owner.content.name : toShortAddress(account)
 
 	const url = createHrefForPost(spaceId.toString(), postId.toString(), content)
 
-	return createMessageForNotifs(formatDate, createHrefForAccount(account, accountName), msg, url)
+	return createMessageForNotifs({
+		date: getFormatDate(date),
+		account: createHrefForAccount(account, accountName),
+		msg,
+		link: url,
+		aggregated,
+		aggCount
+	})
 }
 
-const getPostPreview = ({ account, post_id, msg, date, activityStore }: PostPreview): string => {
+const getPostPreview = ({ account, post_id, msg, date, activityStore, aggregated, aggCount }: PostPreview): string => {
 	const { postById, ownerById } = activityStore
-	const formatDate = dayjs(date).format('lll')
 
 	const post = postById.get(post_id)
 	const spaceId = post.post.struct.space_id
 
-	const title = post.post.content.title
-	const content = title ? title : summarizeMd(post.post.content.body).summary
+	const { title, body } = post.post.content
+	const content = title ? title : summarizeMd(body).summary
 
 	const owner = ownerById.get(account)
-	const accountName = owner?.content?.name ? owner.content.name : account
+	const accountName = owner?.content?.name ? owner.content.name : toShortAddress(account)
 
 	const url = createHrefForPost(spaceId.toString(), post_id.toString(), content)
 
-	return createMessageForNotifs(formatDate, createHrefForAccount(account, accountName), msg, url)
+	return createMessageForNotifs({
+		date: getFormatDate(date),
+		account: createHrefForAccount(account, accountName),
+		msg,
+		link: url,
+		aggregated,
+		aggCount
+	})
 }
 
 export const loadActivityStore = async (activities: Activity[]) => {
@@ -158,7 +172,7 @@ export const loadActivityStore = async (activities: Activity[]) => {
 		nonEmptyStr(comment_id) && postIds.push(new BN(comment_id))
 	})
 
-	const ownersData = await subsocial.findProfiles(ownerIds);
+	const ownersData = await subsocial.findProfiles(ownerIds)
 	const postsData = await subsocial.findPostsWithAllDetails({ ids: postIds })
 	const spacesData = await subsocial.findPublicSpaces(spaceIds)
 
@@ -178,28 +192,27 @@ export const showNotification = async (ctx: TelegrafContext, notifOffset: number
 	if (account) {
 		const activities = await getNotifications(account, notifOffset, 5)
 		const activityStore = await loadActivityStore(activities)
-		const notifsMessage = await createNotificationsMessage(activities, activityStore)
+		const notifsMessage = createNotificationsMessage(activities, activityStore)
 
 		if (notifsMessage.length) {
-			for (let i = 0; i < notifsMessage.length; i++) {
-				const notification = notifsMessage[i]
-
-				if (i == notifsMessage.length - 1)
+			for (const [i, notification] of notifsMessage.entries()) {
+				if (i == notifsMessage.length - 1) {
 					await ctx.reply(notification, {
 						parse_mode: 'HTML',
 						disable_web_page_preview: true,
 						reply_markup: loadMoreNotif
 					})
-				else
+				} else {
 					await ctx.reply(notification, {
 						parse_mode: 'HTML',
 						disable_web_page_preview: true
 					})
+				}
 			}
 			notifOffset += 5
 		} else {
 			notifOffset = 0
-			ctx.reply("No more notifications🤷‍♂️", { reply_markup: mainMenuKeyboard })
+			await ctx.reply("No more notifications🤷‍♂️", { reply_markup: mainMenuKeyboard })
 		}
 	}
 	return notifOffset

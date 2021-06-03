@@ -20,9 +20,6 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
-    "@subsocial/api": "^0.4.33",
-    "@subsocial/types": "^0.4.33",
-    "@subsocial/utils": "^0.4.38",
     "@types/axios": "^0.14.0",
     "@types/bn.js": "^4.11.5",
     "@types/cors": "^2.8.6",
@@ -38,6 +35,9 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
+    "@subsocial/api": "^0.5.2",
+    "@subsocial/types": "^0.5.2",
+    "@subsocial/utils": "^0.4.39",
     "@polkadot/api": "^3.8.1",
     "@polkadot/types": "^3.8.1",
     "bn.js": "^4.11.8",

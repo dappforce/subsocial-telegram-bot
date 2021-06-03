@@ -1,43 +1,34 @@
-import { resolveSubsocialApi } from '../Substrate/subsocialConnect';
+import { resolveSubsocialApi } from '../Substrate/subsocialConnect'
 import {
 	createHrefForPost,
 	createMessageForFeeds,
 	createHrefForAccount,
 	createHrefForSpace,
-} from '../utils';
-import { getAccountByChatId, getNewsFeed } from '../utils/offchainUtils';
-import { TelegrafContext } from 'telegraf/typings/context';
-import { Markup } from 'telegraf';
-import { PostWithAllDetails } from '@subsocial/types';
-import dayjs from 'dayjs';
-import LocalizedFormat from 'dayjs/plugin/localizedFormat'
-import { isDef, nonEmptyStr } from '@subsocial/utils';
-import BN from 'bn.js';
-import { mainMenuKeyboard } from '../utils/index';
-dayjs.extend(LocalizedFormat)
-
-
-const loadMoreFeed = Markup.inlineKeyboard([
-	Markup.callbackButton('📰 Load more', 'loadMoreFeeds'),
-])
+} from '../utils'
+import { getAccountByChatId, getNewsFeed } from '../utils/offchainUtils'
+import { TelegrafContext } from 'telegraf/typings/context'
+import { PostWithAllDetails } from '@subsocial/types'
+import { isDef, nonEmptyStr, summarizeMd } from '@subsocial/utils'
+import BN from 'bn.js'
+import { getFormatDate, toShortAddress } from '../utils/index'
+import { mainMenuKeyboard, loadMoreFeed } from '../utils/keyboard'
 
 export const getPostPreview = ({ post, space, owner }: PostWithAllDetails): string => {
-	const { space_id, id: post_id, created: { time } } = post.struct
-	const formatDate = dayjs(time.toNumber()).format('lll')
+	const { id: post_id, created: { time } } = post.struct
 
-	const account = owner.struct.id.toString()
+	const account = post.struct.owner.toString()
 
-	const spaceId = post.struct.space_id
-	const content = post.content.body
+	const spaceId = post.struct.space_id.unwrap().toString()
+	const content = post.content?.title || summarizeMd(post.content.body).summary
 
-	const accountName = owner.content?.name
+	const accountName = owner?.content?.name || toShortAddress(account)
 	const spaceName = space.content?.name
 
 	const accountUrl = createHrefForAccount(account, accountName)
-	const spaceUrl = createHrefForSpace(space_id.unwrap().toString(), spaceName)
-	const url = createHrefForPost(spaceId.toString(), post_id.toString(), content)
+	const spaceUrl = createHrefForSpace(spaceId, spaceName)
+	const url = createHrefForPost(spaceId, post_id.toString(), content)
 
-	return createMessageForFeeds(url, accountUrl, spaceUrl, formatDate)
+	return createMessageForFeeds(url, accountUrl, spaceUrl, getFormatDate(time.toNumber()))
 }
 
 export const showFeed = async (ctx: TelegrafContext, feedOffset: number) => {
@@ -52,19 +43,22 @@ export const showFeed = async (ctx: TelegrafContext, feedOffset: number) => {
 		const postLength = posts.length
 
 		if (postLength) {
-			posts.forEach(async (post, i) => {
-				if (i == postLength - 1)
-					ctx.reply(getPostPreview(post), {
+			for (const [i, post] of posts.entries()) {
+				if (i == postLength - 1) {
+					await ctx.reply(getPostPreview(post), {
 						parse_mode: 'HTML',
 						reply_markup: loadMoreFeed
 					})
-				else
-					ctx.reply(getPostPreview(post), { parse_mode: 'HTML' })
-			})
+				} else {
+					await ctx.reply(getPostPreview(post), { parse_mode: 'HTML' })
+				}
+			}
+
 			feedOffset += 5
 		} else {
 			feedOffset = 0
-			ctx.reply("No more feed🤷‍♂️", { reply_markup: mainMenuKeyboard })
+
+			await ctx.reply("No more feed🤷‍♂️", { reply_markup: mainMenuKeyboard })
 		}
 	}
 	return feedOffset

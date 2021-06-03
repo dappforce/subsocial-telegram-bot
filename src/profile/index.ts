@@ -1,25 +1,9 @@
-import { TelegrafContext } from 'telegraf/typings/context';
-import { getAccountByChatId, changeCurrentAccount } from '../utils/offchainUtils';
-import { resolveSubsocialApi, api } from '../Substrate/subsocialConnect';
-import { createMessageForProfile } from '../utils';
-import { formatBalance } from '@polkadot/util';
-import { Markup } from 'telegraf';
-import { appsUrl } from '../utils/env';
-
-const profileButton = (account: string) => Markup.inlineKeyboard([
-	[
-		Markup.urlButton('View on site', `${appsUrl}/accounts/${account}`),
-		Markup.urlButton('Edit profile', `${appsUrl}/accounts/edit`),
-	],
-	[
-		Markup.callbackButton('Switch account', 'switchAccount'),
-		Markup.callbackButton('Sign out', 'signOut')
-	]
-]).resize()
-
-const signIn = Markup.keyboard([
-	Markup.callbackButton('Sign in', 'signIn')
-]).resize()
+import { TelegrafContext } from 'telegraf/typings/context'
+import { getAccountByChatId, changeCurrentAccount } from '../utils/offchainUtils'
+import { resolveSubsocialApi, api } from '../Substrate/subsocialConnect'
+import { createMessageForProfile } from '../utils'
+import { formatBalance } from '@polkadot/util'
+import { profileButton, signIn } from '../utils/keyboard'
 
 export const showProfile = async (ctx: TelegrafContext) => {
 	const subsocial = await resolveSubsocialApi()
@@ -30,7 +14,6 @@ export const showProfile = async (ctx: TelegrafContext) => {
 	const profile = await subsocial.findProfile(account)
 
 	const accountName = profile?.content?.name || ''
-	const reputation = profile?.struct.reputation.toNumber() || 0
 	const followers_count = profile?.struct.followers_count.toNumber() || 0
 	const following_accounts_count = profile?.struct.following_accounts_count.toNumber() || 0
 
@@ -39,7 +22,6 @@ export const showProfile = async (ctx: TelegrafContext) => {
 		accountName,
 		account,
 		freeBalance,
-		reputation,
 		following_accounts_count,
 		followers_count
 	)

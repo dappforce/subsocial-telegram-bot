@@ -1,9 +1,6 @@
-import { ApiPromise } from '@polkadot/api';
-import { SubsocialIpfsApi } from '@subsocial/api/ipfs'
-import { SubsocialApi } from '@subsocial/api/subsocial'
-import { SubsocialSubstrateApi } from '@subsocial/api/substrate'
-import { Api } from '@subsocial/api/substrateConnect'
-import { ipfsReadOnly, offchainUrl, substrateUrl } from '../utils/env';
+import { ApiPromise } from '@polkadot/api'
+import { ipfsReadOnly, offchainUrl, substrateUrl } from '../utils/env'
+import { SubsocialApi, SubsocialSubstrateApi, SubsocialIpfsApi, Api } from '@subsocial/api'
 
 export let api: ApiPromise
 export let subsocial: SubsocialApi
